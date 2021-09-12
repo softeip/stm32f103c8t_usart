@@ -1,0 +1,37 @@
+1. Interrupt handlers
+
+void USART1_IRQHandler(void)
+{
+	if (LL_USART_IsEnabledIT_IDLE(USART1) && LL_USART_IsActiveFlag_IDLE(USART1))
+	{
+		LL_USART_ClearFlag_IDLE(USART1);
+		Serial_HandleRxDMA(&BluetoothSerial, DMA1, LL_DMA_CHANNEL_5);
+	}
+}
+
+
+void DMA1_Channel5_IRQHandler(void)
+{
+	if (LL_DMA_IsEnabledIT_HT(DMA1, LL_DMA_CHANNEL_5) && LL_DMA_IsActiveFlag_HT5(DMA1))
+	{
+		LL_DMA_ClearFlag_HT5(DMA1);
+		Serial_HandleRxDMA(&BluetoothSerial, DMA1, LL_DMA_CHANNEL_5);
+	}
+
+	if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_CHANNEL_5) && LL_DMA_IsActiveFlag_TC5(DMA1))
+	{
+		LL_DMA_ClearFlag_TC5(DMA1);
+		Serial_HandleRxDMA(&BluetoothSerial, DMA1, LL_DMA_CHANNEL_5);
+	}
+}
+
+2. Call Serial_Init() after USART & DMA are ready
+
+Serial Serial1;
+
+void Init()
+{
+	Serial_Init(&Serial1, USART1);
+}
+
+3. Use it
